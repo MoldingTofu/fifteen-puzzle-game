@@ -13,6 +13,7 @@ var won = false;
 var challenge = false;
 
 $(document).ready(function() {
+    resetGame();
     $("#grid").swipe( {
         //Generic swipe handler for all directions
         swipe:function(event, direction, distance, duration, fingerCount) {
@@ -30,20 +31,12 @@ $(document).on('click', '.tile', function(){
 		var num = $(this).attr('num');
 		var tile = getTile(num);
 		tile.move();
-		win();
+		//win();
 	}
 });
 
 $(document).on('click', '#start-button', function(){
-	if(!$(this).hasClass('disabled')){
-		if(paused){
-			startGame();
-		} else {		
-			pauseGame();
-		}	
-	} else {
-		showBtnErrorMessage();
-	}
+    solve();
 });
 
 $(document).on('click', '#reset-button', function(){
@@ -109,7 +102,6 @@ $(document).on('click', '#overlay-buttons #share-button', function(){
 
 function startGame(){
 	paused = false;
-	$('#start-button').html('PAUSE');
 	$('#overlay').fadeOut('fast');
 	$('#overlay-play').hide();
 	$('#overlay-message').hide();
@@ -126,7 +118,6 @@ function startGame(){
 
 function pauseGame(){
 	paused = true;
-	$('#start-button').html('START');
 	$('#overlay-paused').show();
 	$('#overlay').fadeIn('fast');
 	clearInterval(counter);
@@ -154,7 +145,6 @@ function resetContents(){
 }
 
 function generateTiles(positions){
-	console.log('Generating tiles');
 	var position = null;
 	var tile = null;
 	for(var i = 1; i < 16; i ++){
@@ -193,15 +183,32 @@ function win(){
 	var finalMoves = $('#score-point .num').html();
 	$('#overlay-buttons').show();
 	$('#overlay-inner #overlay-submessage').html('<b>Time</b>: ' + finalTime +'&nbsp&nbsp&nbsp<b>Moves</b>: ' + finalMoves).show();
-	$('#overlay-buttons #submit-button').addClass('enabled');
-	$('#overlay-buttons #submit-button').css(
-			'opacity', '1'
-		  );
 	tiles = [];
 	won = true;
-    if(localStorage.getItem("challenge_code")!= null){
-    	$('#start-button').addClass('disabled');
-    	$('#submit-button').click();
+}
+
+function solve() {
+    if (!won && !paused) {
+        const pos = getFreePosition();
+        const row = pos['x'] - 1;
+        const col = pos['y'] - 1;
+        const z = row * 4 + col;
+        const t = tiles.map(tile => [tile.x * 4 + tile.y, tile.num]).sort((t1, t2) => t1[0] - t2[0]).map(tile => tile[1]).flatMap((tile, i) => {if (i == z) return [0, tile]; else return [tile]});
+
+        const grid = new Grid(t, 0, z, [0,0]);
+        const solver = new Solver(grid);
+        const ans = solver.solve();
+        console.log(ans);
+
+        ans.forEach(move => {
+            const p = getFreePosition();
+            console.log(move);
+            const r = p['x'] + move[0];
+            const c = p['y'] + move[1];
+			const tile = getTileInPosition(r, c);
+            tile.move();
+            setTimeout(1000);
+        });
     }
 }
 
