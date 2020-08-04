@@ -12,6 +12,7 @@ class MinHeap {
 	}
 
 	insert(elem) {
+        if (!this.elem) return new MinHeap(elem, [], this.comparator);
 		return this.meld(new MinHeap(elem, [], this.comparator), this);
 	}
 

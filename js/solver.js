@@ -9,7 +9,7 @@ class Solver {
         //const helpers = [this.grid];
         //const ans = this.bfs(this.grid, helpers, [this.grid], []);
 
-		const ans = this.dijkstra(this.grid, new MinHeap(this.grid, [], this.comparator), [this.grid], [this.grid]);
+		const ans = this.dijkstra(this.grid, new MinHeap(null, [], this.comparator), [this.grid], [this.grid]);
 
         return ans;
     }
@@ -30,28 +30,27 @@ class Solver {
     }
 
 	dijkstra(start, pq, visited, path) {
+        console.log(start.heuristic());
 		if (start.done()) {
 			return [...path];
 		}
-
-		console.log(visited.length);
 
 		if (typeof(pq) == "boolean") {
 			return false;
 		}
 
 		const neighbors = start.neighbors().flatMap(g => {
-			if (!visited.some(v => v.equals(g))) return [g];
-			else return [];
+			if (visited.some(v => v.equals(g))) return [];
+            else return [g];
 		});
 
 		const newpq = neighbors.reduce((acc, curr) => acc.insert(curr), pq);
 		const min = newpq.findMin();
 
-		return this.dijkstra(min, newpq.deleteMin(), [...visited, min], [...path, min.lastMove()]);
+		return this.dijkstra(min, newpq.deleteMin(), [...visited, min], [...path, min.move]);
 	}
 
 	comparator(a, b) {
-		return a.accumulated - b.accumulated;
+		return a.heuristic() - b.heuristic();
 	}
 }

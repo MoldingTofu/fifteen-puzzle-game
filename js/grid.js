@@ -34,10 +34,6 @@ class Grid {
         return !!this.grid.slice(0, -1).reduce((t, i) => t !== false && i >= t && i);
     }
 
-    lastMove() {
-        return this.move;
-    }
-
     neighbors() {
         return this.moves.map(move => this.apply(move)).filter(m => m);
     }
@@ -54,7 +50,7 @@ class Grid {
 	}
 
 	heuristic() {
-		return this.grid.map((t, i) => this.manhattanDistance(t, i)).reduce((a, b) => a + b + 1, 0);
+		return this.accumulated + this.grid.reduce((acc, curr, i) => acc + this.manhattanDistance(curr, i), 1);
 	}
 
     valid(move) {
@@ -64,22 +60,10 @@ class Grid {
         return row < 4 && row >= 0 && col < 4 && col >= 0;
     }
 
-	getGrid() {
-		return this.grid;
-	}
-
 	equals(grid) {
-		if (!this.grid.grid) return false;
-		if (!grid.getGrid()) return false;
+		const g1 = this.grid;
+		const g2 = grid.grid;
 
-		const g1 = this.grid.grid;
-		const g2 = grid.getGrid();
-
-		const a = g1[0].reduce((a, c, i) => c == g2[0][i] && a, g2[0][0] == g1[0][0]);
-		const b = g1[1].reduce((a, c, i) => c == g2[1][i] && a, g2[1][0] == g1[1][0]);
-		const c = g1[2].reduce((a, c, i) => c == g2[2][i] && a, g2[2][0] == g1[2][0]);
-		const d = g1[3].reduce((a, c, i) => c == g2[3][i] && a, g2[3][0] == g1[3][0]);
-
-		return a && b && c && d;
+        return g1.reduce((acc, curr, i) => curr == g2[i] && acc, g1[0] == g2[0]);
 	}
 }
