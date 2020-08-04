@@ -195,7 +195,7 @@ function solve() {
         const z = row * 4 + col;
         const t = tiles.map(tile => [tile.x * 4 + tile.y, tile.num]).sort((t1, t2) => t1[0] - t2[0]).map(tile => tile[1]).flatMap((tile, i) => {if (i == z) return [0, tile]; else return [tile]});
 
-        const grid = new Grid(t, 0, z, [0,0]);
+        const grid = new Grid(t, 0, z, [0,0], 0);
         const solver = new Solver(grid);
         const ans = solver.solve();
         console.log(ans);
