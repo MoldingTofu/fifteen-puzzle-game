@@ -1,5 +1,6 @@
 'use strict'
 
+// https://en.wikipedia.org/wiki/Pairing_heap
 class MinHeap {
 	constructor(elem, subheaps, comparator) {
 		this.elem = elem;
